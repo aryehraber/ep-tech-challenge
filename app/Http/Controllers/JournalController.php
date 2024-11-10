@@ -10,6 +10,8 @@ class JournalController extends Controller
 {
     public function show(Client $client, Journal $journal)
     {
+        $this->authorize('view', $journal);
+
         return view('journals.show', [
             'client' => $client,
             'journal' => $journal,
@@ -18,6 +20,8 @@ class JournalController extends Controller
 
     public function create(Client $client)
     {
+        $this->authorize('create', Journal::class);
+
         return view('journals.create', [
             'client' => $client,
         ]);
