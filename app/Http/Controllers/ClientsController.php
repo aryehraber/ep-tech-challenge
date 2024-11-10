@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Client;
+use App\Http\Requests\ClientRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
@@ -40,16 +41,16 @@ class ClientsController extends Controller
 
     public function store(Request $request)
     {
-        $client = new Client;
-        $client->name = $request->get('name');
-        $client->email = $request->get('email');
-        $client->phone = $request->get('phone');
-        $client->address = $request->get('address');
-        $client->city = $request->get('city');
-        $client->postcode = $request->get('postcode');
-        $client->save();
+        $data = $request->validate([
+            'name' => ['required', 'max:190'],
+            'email' => ['nullable', 'required_without:phone', 'email:filter'],
+            'phone' => ['nullable', 'required_without:email', 'regex:/^[+]?\d+$/'],
+            'address' => ['nullable'],
+            'city' => ['nullable'],
+            'postcode' => ['nullable'],
+        ]);
 
-        return $client;
+        return $request->user()->client()->create($data);
     }
 
     public function destroy($client)
