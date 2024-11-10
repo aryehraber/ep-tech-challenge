@@ -23,6 +23,9 @@ Vue.component('clients-list', require('./components/ClientsList.vue').default);
 Vue.component('client-form', require('./components/ClientForm.vue').default);
 Vue.component('client-show', require('./components/ClientShow.vue').default);
 
+Vue.component('journal-show', require('./components/JournalShow.vue').default);
+Vue.component('journal-form', require('./components/JournalForm.vue').default);
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application

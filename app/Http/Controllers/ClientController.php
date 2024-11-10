@@ -15,7 +15,7 @@ class ClientController extends Controller
 
         $clients = $request->user()
             ->clients()
-            ->withCount(['bookings'])
+            ->withCount(['bookings', 'journals'])
             ->get();
 
         return view('clients.index', ['clients' => $clients]);
@@ -45,6 +45,7 @@ class ClientController extends Controller
                     fn (Builder $q) => $q->where('start', '<', now())
                 )
                 ->latest('start'),
+            'journals' => fn ($q) => $q->latest('date'),
         ]);
 
         return view('clients.show', [

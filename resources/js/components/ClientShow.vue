@@ -81,14 +81,43 @@
                     <template v-else>
                         <p class="text-center">The client has no bookings.</p>
                     </template>
-
                 </div>
 
                 <!-- Journals -->
                 <div class="bg-white rounded p-4" v-if="currentTab == 'journals'">
-                    <h3 class="mb-3">List of client journals</h3>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3>List of client journals</h3>
 
-                    <p>(BONUS) TODO: implement this feature</p>
+                        <a :href="`/clients/${client.id}/journals/create`" class="float-right btn btn-primary">+ New Journal</a>
+                    </div>
+
+                    <template v-if="journalList && journalList.length > 0">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Snippet</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="journal in journalList" :key="journal.id">
+                                    <td>{{ formatDate(journal.date) }}</td>
+                                    <td>
+                                      <p>{{ journal.snippet }}</p>
+                                    </td>
+                                    <td class="flex space-x-1 text-right">
+                                        <a class="btn btn-primary btn-sm" :href="`/clients/${client.id}/journals/${journal.id}`">View</a>
+                                        <button class="btn btn-danger btn-sm" @click="deleteJournal(journal)">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </template>
+
+                    <template v-else>
+                        <p class="text-center">The client has no journals.</p>
+                    </template>
                 </div>
             </div>
         </div>
@@ -115,6 +144,7 @@ export default {
             currentTab: 'bookings',
             currentBookingType: this.booking_type || '',
             bookingList: [],
+            journalList: [],
             alertMessage: '',
         }
     },
@@ -140,10 +170,28 @@ export default {
                     }
                 });
         },
+
+        deleteJournal(journal) {
+            axios.delete(`/clients/${this.client.id}/journals/${journal.id}`)
+                .then(resp => {
+                    if (resp.data.status === 'success') {
+                        const index = this.journalList.findIndex(({ id }) => journal.id === id);
+
+                        if (index !== -1) {
+                            this.journalList.splice(index, 1);
+                        }
+
+                        this.alertMessage = resp.data.message;
+
+                        setTimeout(() => this.alertMessage = '', 5000);
+                    }
+                });
+        },
     },
 
     mounted() {
         this.bookingList = [...this.client.bookings]
+        this.journalList = [...this.client.journals]
     }
 }
 </script>
