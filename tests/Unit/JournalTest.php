@@ -25,7 +25,7 @@ class JournalTest extends TestCase
         ]);
 
         $this->assertTrue($journal->client->is($client));
-        $this->assertEquals('2024-11-10', $journal->date);
+        $this->assertEquals('2024-11-10', $journal->date->toDateString());
         $this->assertEquals($journalText, $journal->text);
         $this->assertEquals(Str::substr($journalText, 0, 100), $journal->snippet);
         $this->assertEquals("/clients/{$client->id}/journals/{$journal->id}", $journal->url);
