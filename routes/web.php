@@ -33,10 +33,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'clients'], function () {
     Route::get('/{client}', [ClientController::class, 'show'])->name('clients.show');
     Route::delete('/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
 
-    Route::delete('/{client}/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
+    Route::delete('/{client}/bookings/{booking}', [BookingController::class, 'destroy'])->scopeBindings()->name('bookings.destroy');
 
     Route::get('/{client}/journals/create', [JournalController::class, 'create'])->name('journals.create');
-    Route::get('/{client}/journals/{journal}', [JournalController::class, 'show'])->name('journals.show');
+    Route::get('/{client}/journals/{journal}', [JournalController::class, 'show'])->scopeBindings()->name('journals.show');
     Route::post('/{client}/journals', [JournalController::class, 'store'])->name('journals.store');
-    Route::delete('/{client}/journals/{journal}', [JournalController::class, 'destroy'])->name('journals.destroy');
+    Route::delete('/{client}/journals/{journal}', [JournalController::class, 'destroy'])->scopeBindings()->name('journals.destroy');
 });
