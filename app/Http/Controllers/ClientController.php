@@ -13,8 +13,8 @@ class ClientController extends Controller
     {
         $this->authorize('viewAny', Client::class);
 
-        $clients = Client::query()
-            ->where('user_id', $request->user()?->id)
+        $clients = $request->user()
+            ->clients()
             ->withCount(['bookings'])
             ->get();
 
@@ -66,7 +66,7 @@ class ClientController extends Controller
             'postcode' => ['nullable'],
         ]);
 
-        return $request->user()->client()->create($data);
+        return $request->user()->clients()->create($data);
     }
 
     public function destroy(Client $client)
