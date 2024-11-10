@@ -17,8 +17,7 @@ class ClientTest extends TestCase
     public function client_has_various_properties()
     {
         $user = User::factory()->create();
-        $client = Client::factory()->create([
-            'user_id' => $user->id,
+        $client = Client::factory()->for($user)->create([
             'name' => 'John Doe',
             'email' => 'john@example.com',
             'phone' => '012345678',
@@ -34,6 +33,7 @@ class ClientTest extends TestCase
         $this->assertEquals('Lorem Street 123', $client->address);
         $this->assertEquals('Someplace', $client->city);
         $this->assertEquals('11111', $client->postcode);
+        $this->assertEquals("/clients/{$client->id}", $client->url);
     }
 
     /** @test */
