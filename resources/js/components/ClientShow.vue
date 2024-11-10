@@ -22,7 +22,7 @@
                             </tr>
                             <tr>
                                 <th class="text-gray-600 pr-3">Address</th>
-                                <td>{{ client.address }}<br/>{{ client.postcode + ' ' + client.city }}</td>
+                                <td>{{ client.address }}<br/>{{ client.postcode }} {{ client.city }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -54,8 +54,8 @@
                         </form>
                     </div>
 
-                    <template v-if="client.bookings && client.bookings.length > 0">
-                        <table>
+                    <template v-if="bookingList && bookingList.length > 0">
+                        <table class="table">
                             <thead>
                                 <tr>
                                     <th>Time</th>
@@ -64,8 +64,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="booking in client.bookings" :key="booking.id">
-                                    <td>{{ formatBookingDate(booking.start, booking.end) }}</td>
+                                <tr v-for="booking in bookingList" :key="booking.id">
+                                    <td>
+                                        {{ formatDate(booking.start) }},
+                                        {{ formatTime(booking.start) }} to {{ formatTime(booking.end) }}
+                                    </td>
                                     <td>{{ booking.notes }}</td>
                                     <td>
                                         <button class="btn btn-danger btn-sm" @click="deleteBooking(booking)">Delete</button>
@@ -89,14 +92,21 @@
                 </div>
             </div>
         </div>
+
+        <div class="alert alert-success fixed-top text-center" role="alert" v-if="alertMessage">
+            {{ alertMessage }}
+        </div>
     </div>
 </template>
 
 <script>
 import axios from 'axios';
+import FormatDate from '../mixins/format-date.vue';
 
 export default {
     name: 'ClientShow',
+
+    mixins: [FormatDate],
 
     props: ['client', 'booking_type'],
 
@@ -104,6 +114,8 @@ export default {
         return {
             currentTab: 'bookings',
             currentBookingType: this.booking_type || '',
+            bookingList: [],
+            alertMessage: '',
         }
     },
 
@@ -113,20 +125,25 @@ export default {
         },
 
         deleteBooking(booking) {
-            axios.delete(`/bookings/${booking.id}`);
-        },
+            axios.delete(`/clients/${this.client.id}/bookings/${booking.id}`)
+                .then(resp => {
+                    if (resp.data.status === 'success') {
+                        const index = this.bookingList.findIndex(({ id }) => booking.id === id);
 
-        formatBookingDate(startDate, endDate) {
-            const start = new Date(startDate)
-            const end = new Date(endDate)
+                        if (index !== -1) {
+                            this.bookingList.splice(index, 1);
+                        }
 
-            return `
-                ${start.toLocaleDateString('en-GB', { dateStyle: 'full' })},
-                ${start.toLocaleTimeString('en-GB', { timeStyle: 'short' })}
-                to
-                ${end.toLocaleTimeString('en-GB', { timeStyle: 'short' })}
-            `.trim()
+                        this.alertMessage = resp.data.message;
+
+                        setTimeout(() => this.alertMessage = '', 5000);
+                    }
+                });
         },
+    },
+
+    mounted() {
+        this.bookingList = [...this.client.bookings]
     }
 }
 </script>
