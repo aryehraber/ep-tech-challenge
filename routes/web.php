@@ -28,15 +28,15 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::group(['middleware' => 'auth', 'prefix' => 'clients'], function () {
     Route::get('/', [ClientController::class, 'index'])->name('clients.index');
-    Route::get('/create', [ClientController::class, 'create']);
-    Route::post('/', [ClientController::class, 'store']);
-    Route::get('/{client}', [ClientController::class, 'show']);
-    Route::delete('/{client}', [ClientController::class, 'destroy']);
+    Route::get('/create', [ClientController::class, 'create'])->name('clients.create');
+    Route::post('/', [ClientController::class, 'store'])->name('clients.store');
+    Route::get('/{client}', [ClientController::class, 'show'])->name('clients.show');
+    Route::delete('/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
 
-    Route::delete('/{client}/bookings/{booking}', [BookingController::class, 'destroy']);
+    Route::delete('/{client}/bookings/{booking}', [BookingController::class, 'destroy'])->name('bookings.destroy');
 
-    Route::get('/{client}/journals/create', [JournalController::class, 'create']);
-    Route::get('/{client}/journals/{journal}', [JournalController::class, 'show']);
-    Route::post('/{client}/journals', [JournalController::class, 'store']);
-    Route::delete('/{client}/journals/{journal}', [JournalController::class, 'destroy']);
+    Route::get('/{client}/journals/create', [JournalController::class, 'create'])->name('journals.create');
+    Route::get('/{client}/journals/{journal}', [JournalController::class, 'show'])->name('journals.show');
+    Route::post('/{client}/journals', [JournalController::class, 'store'])->name('journals.store');
+    Route::delete('/{client}/journals/{journal}', [JournalController::class, 'destroy'])->name('journals.destroy');
 });
