@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 
 class ClientsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::all();
+        $clients = Client::query()
+            ->where('user_id', $request->user()?->id)
+            ->get();
 
         foreach ($clients as $client) {
             $client->append('bookings_count');
