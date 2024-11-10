@@ -29,11 +29,6 @@ class Client extends Model
         return $this->hasMany(Booking::class);
     }
 
-    public function getBookingsCountAttribute()
-    {
-        return $this->bookings->count();
-    }
-
     public function getUrlAttribute()
     {
         return "/clients/" . $this->id;

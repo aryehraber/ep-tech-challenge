@@ -15,11 +15,8 @@ class ClientController extends Controller
 
         $clients = Client::query()
             ->where('user_id', $request->user()?->id)
+            ->withCount(['bookings'])
             ->get();
-
-        foreach ($clients as $client) {
-            $client->append('bookings_count');
-        }
 
         return view('clients.index', ['clients' => $clients]);
     }
