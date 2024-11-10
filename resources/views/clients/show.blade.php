@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <client-show :client='@json($client)'></client-show>
+<div class="container">
+    <client-show :client='@json($client)' :booking-type='@json($bookingType)'></client-show>
 </div>
 @endsection
