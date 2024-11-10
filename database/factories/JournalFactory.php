@@ -1,16 +1,27 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+namespace Database\Factories;
 
-use App\Journal;
-use Faker\Generator as Faker;
+use App\Client;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
-$factory->define(Journal::class, function (Faker $faker) {
-    $date = Carbon::make($faker->dateTimeBetween('-1 year', '-1 day'));
-
-    return [
-        'date' => $date,
-        'text' => $faker->paragraphs(rand(2, 10), true),
-    ];
-});
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Journal>
+ */
+class JournalFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'client_id' => Client::factory(),
+            'date' => Carbon::make($this->faker->dateTimeBetween('-1 year', '-1 day')),
+            'text' => $this->faker->paragraphs(rand(2, 10), true),
+        ];
+    }
+}

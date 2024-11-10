@@ -16,9 +16,9 @@ class JournalSeeder extends Seeder
         $clients = Client::all();
 
         foreach ($clients as $client) {
-            $amount = rand(0, 5);
+            $quantity = rand(0, 5);
 
-            factory(Journal::class, $amount)->create([
+            Journal::factory($quantity)->create([
                 'client_id' => $client->id,
             ]);
         }

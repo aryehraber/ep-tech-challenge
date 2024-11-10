@@ -13,12 +13,19 @@ class ClientSeeder extends Seeder
      */
     public function run()
     {
-        $user = User::first() ?? factory(User::class)->create();
+        $user = User::first() ?? User::factory()->create();
+        $otherUsers = User::factory(25)->create();
 
-        factory(Client::class, 50)->create([
+        Client::factory(25)->create([
             'user_id' => $user->id,
         ]);
 
-        factory(Client::class, 100)->create();
+        foreach ($otherUsers as $otherUser) {
+            $quantity = rand(0, 10);
+
+            Client::factory($quantity)->create([
+                'user_id' => $otherUser->id,
+            ]);
+        }
     }
 }
