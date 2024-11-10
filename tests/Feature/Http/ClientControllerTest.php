@@ -6,6 +6,7 @@ use App\Booking;
 use App\Client;
 use App\Journal;
 use App\User;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -32,7 +33,7 @@ class ClientControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $client = Client::factory()
-            ->state(['user_id' => $user->id])
+            ->for($user)
             ->create();
 
         $this->actingAs($user)
@@ -47,7 +48,7 @@ class ClientControllerTest extends TestCase
     {
         [$user, $otherUser] = User::factory(2)->create();
         $client = Client::factory()
-            ->state(['user_id' => $otherUser->id])
+            ->for($otherUser)
             ->has(Booking::factory(2))
             ->create();
 
@@ -61,7 +62,7 @@ class ClientControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $client = Client::factory()
-            ->state(['user_id' => $user->id])
+            ->for($user)
             ->has(Booking::factory(3))
             ->create();
 
@@ -81,15 +82,21 @@ class ClientControllerTest extends TestCase
     public function client_profile_can_filter_by_booking_type()
     {
         $user = User::factory()->create();
-        $client = Client::factory()
-            ->state(['user_id' => $user->id])
-            ->has(Booking::factory(5)->state(['start' => now()->addDays(7)]))
-            ->has(Booking::factory(8)->state(['start' => now()->subDays(3)]))
+        $client = Client::factory()->for($user)->create();
+        Booking::factory(5)
+            ->for($client)
+            ->sequence(fn (Sequence $sequence) => ['start' => now()->addDays($sequence->index + 1)])
             ->create();
+        Booking::factory(7)
+            ->for($client)
+            ->sequence(fn (Sequence $sequence) => ['start' => now()->subDays($sequence->index + 1)])
+            ->create();
+
+        $this->assertEquals(12, $client->bookings()->count());
 
         $this->actingAs($user)
             ->get(route('clients.show', [$client, 'booking_type' => 'future']))
-            ->assertViewHas('booking_type', 'future')
+            ->assertViewHas('bookingType', 'future')
             ->assertViewHas('client', function (Client $client) {
                 $this->assertTrue($client->relationLoaded('bookings'));
 
@@ -106,7 +113,7 @@ class ClientControllerTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('clients.show', [$client, 'booking_type' => 'past']))
-            ->assertViewHas('booking_type', 'past')
+            ->assertViewHas('bookingType', 'past')
             ->assertViewHas('client', function (Client $client) {
                 $this->assertTrue($client->relationLoaded('bookings'));
 
@@ -115,7 +122,7 @@ class ClientControllerTest extends TestCase
                     ->latest('start')
                     ->get();
 
-                $this->assertCount(8, $bookings);
+                $this->assertCount(7, $bookings);
                 $this->assertEquals($client->bookings, $bookings);
 
                 return true;
@@ -220,9 +227,7 @@ class ClientControllerTest extends TestCase
     public function can_delete_client()
     {
         $user = User::factory()->create();
-        $client = Client::factory()
-            ->state(['user_id' => $user->id])
-            ->create();
+        $client = Client::factory()->for($user)->create();
 
         $this->actingAs($user)
             ->delete(route('clients.destroy', $client))
@@ -235,9 +240,7 @@ class ClientControllerTest extends TestCase
     public function cannot_delete_another_users_client()
     {
         [$user, $otherUser] = User::factory(2)->create();
-        $client = Client::factory()
-            ->state(['user_id' => $otherUser->id])
-            ->create();
+        $client = Client::factory()->for($otherUser)->create();
 
         $this->actingAs($user)
             ->delete(route('clients.destroy', $client))
