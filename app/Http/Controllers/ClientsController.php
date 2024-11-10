@@ -27,16 +27,30 @@ class ClientsController extends Controller
         return view('clients.create');
     }
 
-    public function show($client)
+    public function show(Request $request, $client)
     {
+        $bookingType = $request->get('booking_type');
+
         $client = Client::query()
             ->with([
-                'bookings' => fn ($q) => $q->latest('start'),
+                'bookings' => fn ($q) => $q
+                    ->when(
+                        $bookingType === 'future',
+                        fn (Builder $q) => $q->where('start', '>=', now())
+                    )
+                    ->when(
+                        $bookingType === 'past',
+                        fn (Builder $q) => $q->where('start', '<', now())
+                    )
+                    ->latest('start'),
             ])
             ->where('id', $client)
             ->first();
 
-        return view('clients.show', ['client' => $client]);
+        return view('clients.show', [
+            'client' => $client,
+            'booking_type' => $bookingType,
+        ]);
     }
 
     public function store(Request $request)

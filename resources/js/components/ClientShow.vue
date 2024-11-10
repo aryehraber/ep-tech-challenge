@@ -37,7 +37,22 @@
 
                 <!-- Bookings -->
                 <div class="bg-white rounded p-4" v-if="currentTab == 'bookings'">
-                    <h3 class="mb-3">List of client bookings</h3>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3>List of client bookings</h3>
+
+                        <form>
+                            <select
+                                v-model="currentBookingType"
+                                name="booking_type"
+                                class="px-2 py-1 border rounded-sm"
+                                @change="(e) => e.target.form.submit()"
+                            >
+                                <option value="">All bookings</option>
+                                <option value="future">Future bookings only</option>
+                                <option value="past">Past bookings only</option>
+                            </select>
+                        </form>
+                    </div>
 
                     <template v-if="client.bookings && client.bookings.length > 0">
                         <table>
@@ -83,11 +98,12 @@ import axios from 'axios';
 export default {
     name: 'ClientShow',
 
-    props: ['client'],
+    props: ['client', 'booking_type'],
 
     data() {
         return {
             currentTab: 'bookings',
+            currentBookingType: this.booking_type || '',
         }
     },
 
