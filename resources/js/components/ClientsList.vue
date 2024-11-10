@@ -16,7 +16,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="client in clients" :key="client.id">
+                <tr v-for="client in clientList" :key="client.id">
                     <td>{{ client.name }}</td>
                     <td>{{ client.email }}</td>
                     <td>{{ client.phone }}</td>
@@ -28,6 +28,10 @@
                 </tr>
             </tbody>
         </table>
+
+        <div class="alert alert-success fixed-top text-center" role="alert" v-if="alertMessage">
+            {{ alertMessage }}
+        </div>
     </div>
 </template>
 
@@ -39,10 +43,34 @@ export default {
 
     props: ['clients'],
 
+    data() {
+        return {
+            clientList: [],
+            alertMessage: '',
+        }
+    },
+
     methods: {
         deleteClient(client) {
-            axios.delete(`/clients/${client.id}`);
+            axios.delete(`/clients/${client.id}`)
+                .then(resp => {
+                    if (resp.data.status === 'success') {
+                        const index = this.clientList.findIndex(({ id }) => client.id === id);
+
+                        if (index !== -1) {
+                            this.clientList.splice(index, 1);
+                        }
+
+                        this.alertMessage = resp.data.message;
+
+                        setTimeout(() => this.alertMessage = '', 5000);
+                    }
+                });
         }
+    },
+
+    mounted() {
+        this.clientList = [...this.clients]
     }
 }
 </script>

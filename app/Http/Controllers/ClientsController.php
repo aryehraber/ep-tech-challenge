@@ -56,6 +56,9 @@ class ClientsController extends Controller
     {
         Client::where('id', $client)->delete();
 
-        return 'Deleted';
+        return response([
+            'status' => 'success',
+            'message' => 'Client deleted!',
+        ]);
     }
 }
