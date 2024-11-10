@@ -7,7 +7,7 @@ use App\Http\Requests\ClientRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
-class ClientsController extends Controller
+class ClientController extends Controller
 {
     public function index(Request $request)
     {
