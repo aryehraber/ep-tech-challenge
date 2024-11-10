@@ -11,6 +11,8 @@ class ClientController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Client::class);
+
         $clients = Client::query()
             ->where('user_id', $request->user()?->id)
             ->get();
@@ -24,28 +26,29 @@ class ClientController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Client::class);
+
         return view('clients.create');
     }
 
-    public function show(Request $request, $client)
+    public function show(Request $request, Client $client)
     {
+        $this->authorize('view', $client);
+
         $bookingType = $request->get('booking_type');
 
-        $client = Client::query()
-            ->with([
-                'bookings' => fn ($q) => $q
-                    ->when(
-                        $bookingType === 'future',
-                        fn (Builder $q) => $q->where('start', '>=', now())
-                    )
-                    ->when(
-                        $bookingType === 'past',
-                        fn (Builder $q) => $q->where('start', '<', now())
-                    )
-                    ->latest('start'),
-            ])
-            ->where('id', $client)
-            ->first();
+        $client->load([
+            'bookings' => fn ($q) => $q
+                ->when(
+                    $bookingType === 'future',
+                    fn (Builder $q) => $q->where('start', '>=', now())
+                )
+                ->when(
+                    $bookingType === 'past',
+                    fn (Builder $q) => $q->where('start', '<', now())
+                )
+                ->latest('start'),
+        ]);
 
         return view('clients.show', [
             'client' => $client,
@@ -55,6 +58,8 @@ class ClientController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Client::class);
+
         $data = $request->validate([
             'name' => ['required', 'max:190'],
             'email' => ['nullable', 'required_without:phone', 'email:filter'],
@@ -67,9 +72,11 @@ class ClientController extends Controller
         return $request->user()->client()->create($data);
     }
 
-    public function destroy($client)
+    public function destroy(Client $client)
     {
-        Client::where('id', $client)->delete();
+        $this->authorize('delete', $client);
+
+        $client->delete();
 
         return response([
             'status' => 'success',
