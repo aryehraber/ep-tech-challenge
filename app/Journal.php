@@ -17,14 +17,18 @@ class Journal extends Model
         'text',
     ];
 
-    protected $dates = [
-        'date',
-    ];
-
     protected $appends = [
         'snippet',
         'url',
     ];
+
+
+    protected function casts(): array
+    {
+        return [
+            'date' => 'date',
+        ];
+    }
 
     public function client(): BelongsTo
     {
