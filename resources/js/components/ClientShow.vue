@@ -137,12 +137,12 @@ export default {
 
     mixins: [FormatDate],
 
-    props: ['client', 'booking_type'],
+    props: ['client', 'bookingType'],
 
     data() {
         return {
             currentTab: 'bookings',
-            currentBookingType: this.booking_type || '',
+            currentBookingType: this.bookingType || '',
             bookingList: [],
             journalList: [],
             alertMessage: '',

@@ -2,6 +2,6 @@
 
 @section('content')
 <div class="container">
-    <client-show :client='@json($client)' :booking_type='@json($booking_type)'></client-show>
+    <client-show :client='@json($client)' :booking-type='@json($bookingType)'></client-show>
 </div>
 @endsection

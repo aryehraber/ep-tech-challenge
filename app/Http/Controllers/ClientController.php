@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Client;
+use App\Enums\BookingType;
 use App\Http\Requests\ClientRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -13,8 +14,7 @@ class ClientController extends Controller
     {
         $this->authorize('viewAny', Client::class);
 
-        $clients = $request->user()
-            ->clients()
+        $clients = $request->user()->clients()
             ->withCount(['bookings', 'journals'])
             ->get();
 
@@ -32,25 +32,16 @@ class ClientController extends Controller
     {
         $this->authorize('view', $client);
 
-        $bookingType = $request->get('booking_type');
+        $bookingType = $request->enum('booking_type', BookingType::class);
 
         $client->load([
-            'bookings' => fn ($q) => $q
-                ->when(
-                    $bookingType === 'future',
-                    fn (Builder $q) => $q->where('start', '>=', now())
-                )
-                ->when(
-                    $bookingType === 'past',
-                    fn (Builder $q) => $q->where('start', '<', now())
-                )
-                ->latest('start'),
+            'bookings' => fn ($q) => $q->ofType($bookingType)->latest('start'),
             'journals' => fn ($q) => $q->latest('date'),
         ]);
 
         return view('clients.show', [
             'client' => $client,
-            'booking_type' => $bookingType,
+            'bookingType' => $bookingType?->value,
         ]);
     }
 
