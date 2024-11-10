@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Client;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class ClientsController extends Controller
@@ -28,7 +29,9 @@ class ClientsController extends Controller
     public function show($client)
     {
         $client = Client::query()
-            ->with(['bookings'])
+            ->with([
+                'bookings' => fn ($q) => $q->latest('start'),
+            ])
             ->where('id', $client)
             ->first();
 
