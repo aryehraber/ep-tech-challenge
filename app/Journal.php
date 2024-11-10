@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,13 +31,13 @@ class Journal extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function getSnippetAttribute()
+    protected function snippet(): Attribute
     {
-        return Str::substr($this->text, 0, 100);
+        return Attribute::get(fn () => Str::substr($this->text, 0, 100));
     }
 
-    public function getUrlAttribute()
+    protected function url(): Attribute
     {
-        return "/clients/{$this->client_id}/journals/{$this->id}";
+        return Attribute::get(fn () => "/clients/{$this->client_id}/journals/{$this->id}");
     }
 }
